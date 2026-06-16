@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kalkulator</title>
+
+<style>
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background: white;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image: url("https://www.gospodarkamorska.pl/files/companies/2465/thumb390x251_GT_Logo_2025.png");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 55%;
+    opacity: 1;
+    z-index: -1;
+    pointer-events: none;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+.block {
+    display: flex;
+    gap: 20px;
+}
+
+.left { flex: 2; }
+
+.right {
+    flex: 1;
+    background: rgba(255,255,255,0.6);
+    padding: 15px;
+    border-radius: 10px;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+input, button {
+    width: 100%;
+    font-size: 20px;
+    padding: 10px;
+    margin-top: 10px;
+}
+
+button {
+    background: black;
+    color: white;
+    border: none;
+}
+
+pre {
+    background: rgba(255,255,255,0.7);
+    padding: 10px;
+}
+
+.history-item {
+    border-bottom: 1px solid #ccc;
+    padding: 5px;
+    font-size: 13px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<!-- KALKULATOR 1 -->
+<div class="block">
+<div class="left">
+<h2>Kalkulator żerdzi</h2>
+<input id="m1">
+<button onclick="calc1()">OBLICZ</button>
+<pre id="out1"></pre>
+</div>
+<div class="right"><h3>Historia</h3><div id="history1"></div></div>
+</div>
+
+<!-- KALKULATOR 2 -->
+<div class="block">
+<div class="left">
+<h2>Kalkulator CSH</h2>
+<input id="m2">
+<button onclick="calc2()">OBLICZ</button>
+<pre id="out2"></pre>
+</div>
+<div class="right"><h3>Historia</h3><div id="history2"></div></div>
+</div>
+
+<!-- KALKULATOR 3 -->
+<div class="block">
+<div class="left">
+<h2>Kalkulator Geobor</h2>
+<input id="m3">
+<button onclick="calc3()">OBLICZ</button>
+<pre id="out3"></pre>
+</div>
+<div class="right"><h3>Historia</h3><div id="history3"></div></div>
+</div>
+
+</div>
+
+<script>
+
+let history1 = [];
+let history2 = [];
+let history3 = [];
+
+/* ===================== 1 ===================== */
+function calc1() {
+
+    let m = parseFloat(document.getElementById("m1").value.replace(",", "."));
+    if (isNaN(m)) return;
+
+    let target = Math.round(m * 1000);
+
+    const NWJ = 3050;
+    const NWJ2 = 1525;
+    const BABY = 611;
+
+    let a = Math.floor(target / NWJ);
+    target -= a * NWJ;
+
+    let b = Math.floor(target / NWJ2);
+    target -= b * NWJ2;
+
+    let c = Math.floor(target / BABY);
+    target -= c * BABY;
+
+    const PRÓBNIK = 900;
+    let p = 1;            // ZAWSZE 1
+    target -= PRÓBNIK;
+
+    let total = a*NWJ + b*NWJ2 + c*BABY + PRÓBNIK;
+
+    let waste = total - Math.round(m * 1000);
+
+    document.getElementById("out1").innerText =
+`NWJ 305: ${a}
+NWJ 152: ${b}
+Baby: ${c}
+Próbnik 0.9m: 1
+
+SUMA: ${(total/1000).toFixed(3)} m
+NADMIAR: ${(waste/1000).toFixed(3)} m`;
+
+    history1.unshift({m, total: total/1000, waste: waste/1000});
+    render("history1", history1);
+}
+
+/* ===================== 2 ===================== */
+function calc2() {
+
+    let m = parseFloat(document.getElementById("m2").value.replace(",", "."));
+    if (isNaN(m)) return;
+
+    let target = Math.round(m * 1000);
+
+    const APARAT = 2640;
+
+    if (target < APARAT) return;
+
+    target -= APARAT;
+
+    const CSH300 = 3000;
+    const CSH150 = 1500;
+    const CSH1435 = 1435;
+
+    let a = Math.floor(target / CSH300);
+    target -= a * CSH300;
+
+    let b = Math.floor(target / CSH150);
+    target -= b * CSH150;
+
+    let c = Math.floor(target / CSH1435);
+    target -= c * CSH1435;
+
+    const AP = 1; // ZAWSZE 1
+
+    let total = a*CSH300 + b*CSH150 + c*CSH1435 + APARAT;
+
+    let waste = total - Math.round(m * 1000);
+
+    document.getElementById("out2").innerText =
+`CSH 3m: ${a}
+CSH 1.5m: ${b}
+CSH 1.435m: ${c}
+Aparat 2.64m: 1
+
+SUMA: ${(total/1000).toFixed(3)} m
+NADMIAR: ${(waste/1000).toFixed(3)} m`;
+
+    history2.unshift({m, total: total/1000, waste: waste/1000});
+    render("history2", history2);
+}
+
+/* ===================== 3 ===================== */
+function calc3() {
+
+    let m = parseFloat(document.getElementById("m3").value.replace(",", "."));
+    if (isNaN(m)) return;
+
+    let target = Math.round(m * 1000);
+
+    const GEOBOR = 2710;
+
+    if (target < GEOBOR) return;
+
+    target -= GEOBOR;
+
+    const CSH300 = 3000;
+    const CSH150 = 1500;
+    const CSH1435 = 1435;
+
+    let a = Math.floor(target / CSH300);
+    target -= a * CSH300;
+
+    let b = Math.floor(target / CSH150);
+    target -= b * CSH150;
+
+    let c = Math.floor(target / CSH1435);
+    target -= c * CSH1435;
+
+    const GB = 1; // ZAWSZE 1
+
+    let total = a*CSH300 + b*CSH150 + c*CSH1435 + GEOBOR;
+
+    let waste = total - Math.round(m * 1000);
+
+    document.getElementById("out3").innerText =
+`CSH 3m: ${a}
+CSH 1.5m: ${b}
+CSH 1.435m: ${c}
+Geobor 2.71m: 1
+
+SUMA: ${(total/1000).toFixed(3)} m
+NADMIAR: ${(waste/1000).toFixed(3)} m`;
+
+    history3.unshift({m, total: total/1000, waste: waste/1000});
+    render("history3", history3);
+}
+
+/* ===================== HISTORY ===================== */
+
+function render(id, arr){
+    document.getElementById(id).innerHTML =
+    arr.map((h,i)=>`
+    <div class="history-item">
+    <b>#${i+1}</b><br>
+    Wykop: ${h.m.toFixed(3)} m<br>
+    Suma: ${h.total.toFixed(3)} m<br>
+    Nadmiar: ${h.waste.toFixed(3)} m
+    </div>`).join("");
+}
+
+</script>
+
+</body>
+</html>
